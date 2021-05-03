@@ -34,13 +34,9 @@ def model_fn_(features, labels, mode, params):
             predictions=predictions)
 
 
-config = tf.estimator.RunConfig().replace(log_step_count_steps=5, save_checkpoints_steps=5, keep_checkpoint_max=10)
-model = tf.estimator.Estimator(model_fn=model_fn_,  config=config)
-
-
 def input_fn_():
-    features = tf.data.Dataset.from_tensor_slices(iris.data)
-    labels = tf.data.Dataset.from_tensor_slices(iris.target)
+    features = tf.data.Dataset.from_tensor_slices(iris.data)  # [4,]
+    labels = tf.data.Dataset.from_tensor_slices(iris.target)  # []
 
     ds = tf.data.Dataset.zip((features, labels))
 
@@ -49,9 +45,18 @@ def input_fn_():
     return ds
 
 
-train_spec = tf.estimator.TrainSpec(input_fn=input_fn_,
-                                    max_steps=500)
-eval_spec = tf.estimator.EvalSpec(input_fn=input_fn_, steps=5, start_delay_secs=5, throttle_secs=5)
+def main():
+    config = tf.estimator.RunConfig().replace(log_step_count_steps=5, save_checkpoints_steps=5, keep_checkpoint_max=10)
+    model = tf.estimator.Estimator(model_fn=model_fn_, config=config)
+    train_spec = tf.estimator.TrainSpec(input_fn=input_fn_,
+                                        max_steps=500)
+    eval_spec = tf.estimator.EvalSpec(input_fn=input_fn_, steps=5, start_delay_secs=5, throttle_secs=5)
 
-# evaluate做的确实会重新执行model_fn_但是执行之后，还会重新从model_dir参数中把模型数据load进来，然后进行评估
-tf.estimator.train_and_evaluate(estimator=model, train_spec=train_spec, eval_spec=eval_spec)
+    # evaluate做的确实会重新执行model_fn_但是执行之后，还会重新从model_dir参数中把模型数据load进来，然后进行评估
+    tf.estimator.train_and_evaluate(estimator=model, train_spec=train_spec, eval_spec=eval_spec)
+
+
+if __name__ == '__main__':
+    # main()
+
+    print("done")
